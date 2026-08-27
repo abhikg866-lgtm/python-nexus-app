@@ -1,15 +1,59 @@
 import express from "express";
 
-const app = express();
+const router = express.Router();
 
-app.use(express.json());
+router.post("/", async (req, res) => {
+  try {
+    const { system, messages } = req.body;
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Python Nexus Backend is running!"
-  });
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({
+        error: "Messages are required"
+      });
+    }
+
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({
+        error: "ANTHROPIC_API_KEY is not configured"
+      });
+    }
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 300,
+        system: system || "You are a friendly Python tutor.",
+        messages
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: data?.error?.message || "AI request failed"
+      });
+    }
+
+    res.json({
+      content: data.content || []
+    });
+
+  } catch (error) {
+    console.error("Tutor error:", error);
+
+    res.status(500).json({
+      error: "Tutor server error"
+    });
+  }
 });
 
-app.listen(3000, () => {
-  console.log("Backend running on port 3000");
-});
+export default router;
