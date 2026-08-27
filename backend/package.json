@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node api/tutor.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
   }
 }
