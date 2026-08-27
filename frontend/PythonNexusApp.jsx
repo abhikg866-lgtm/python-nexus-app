@@ -202,33 +202,121 @@ function Projects({go,t}) {
     </div>
   );
 }
-export default function PythonNexusApp();let content =
-  screen === "home"
-    ? <HomeScreen go={go} t={t} p={p}/>
-    : screen === "course"
-    ? <Course go={go} t={t} p={p}/>
-    : screen === "quiz"
-    ? <Course go={go} t={t} p={p}/>
-    : screen === "tutor"
-    ? <Tutor go={go} t={t} lang={lang}/>
-    : screen === "projects"
-    ? <Projects go={go} t={t}/>
-    : screen.startsWith("project-")
-    ? <ProjectDetail
+export default function PythonNexusApp() {
+  const [screen, setScreen] = useState("splash");
+  const [lang, setLang] = useState(
+    localStorage.getItem("nexus_lang") || "hi"
+  );
+
+  const [p, setP] = useState(() =>
+    JSON.parse(
+      localStorage.getItem("nexus_progress") ||
+      '{"xp":0,"streak":1,"completed":[]}'
+    )
+  );
+
+  const t = { ...UI[lang], _lang: lang };
+
+  const go = (x) => setScreen(x);
+
+  const complete = (id) =>
+    setP((v) => {
+      if (v.completed.includes(id)) return v;
+
+      const n = {
+        ...v,
+        completed: [...v.completed, id],
+        xp: v.xp + 20
+      };
+
+      localStorage.setItem(
+        "nexus_progress",
+        JSON.stringify(n)
+      );
+
+      return n;
+    });
+
+  const change = (x) => {
+    setLang(x);
+    localStorage.setItem("nexus_lang", x);
+  };
+
+  if (screen === "splash") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="w-[360px] h-[720px] bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 flex flex-col items-center justify-center p-6 text-center">
+          <div className="text-6xl">🐍</div>
+
+          <h1 className="text-white text-2xl font-bold mt-4">
+            PYTHON <span className="text-sky-400">NEXUS</span>
+          </h1>
+
+          <p className="text-slate-400 text-xs">
+            {t.tagline}
+          </p>
+
+          <button
+            onClick={() => go("home")}
+            className="mt-8 w-full bg-gradient-to-r from-violet-600 to-sky-500 text-white py-3 rounded-xl"
+          >
+            {t.getStarted}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  let content =
+    screen === "home" ? (
+      <HomeScreen go={go} t={t} p={p} />
+    ) : screen === "course" ? (
+      <Course go={go} t={t} p={p} />
+    ) : screen === "quiz" ? (
+      <Course go={go} t={t} p={p} />
+    ) : screen === "tutor" ? (
+      <Tutor go={go} t={t} lang={lang} />
+    ) : screen === "projects" ? (
+      <Projects go={go} t={t} />
+    ) : screen.startsWith("project-") ? (
+      <ProjectDetail
         go={go}
         t={t}
         projectId={screen.replace("project-", "")}
       />
-    : LESSONS[screen]
-    ? <Lesson
+    ) : LESSONS[screen] ? (
+      <Lesson
         go={go}
         t={t}
         id={screen}
         complete={complete}
       />
-    : <Settings
+    ) : (
+      <Settings
         go={go}
         t={t}
         lang={lang}
         setLang={change}
-      />;
+      />
+    );
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 py-6">
+      <div className="w-[360px] h-[720px] rounded-[2.2rem] border-4 border-slate-800 overflow-hidden flex flex-col bg-slate-950">
+        <div className="flex-1 overflow-hidden">
+          {content}
+        </div>
+
+        {!LESSONS[screen] &&
+          !screen.startsWith("project-") &&
+          !["tutor", "settings"].includes(screen) && (
+            <Nav
+              screen={screen}
+              setScreen={go}
+              t={t}
+            />
+          )}
+      </div>
+    </div>
+  );
+}
