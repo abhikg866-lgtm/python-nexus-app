@@ -95,18 +95,140 @@ function Projects({go,t}) {
       </div>
     </div>
   );
+}function ProjectDetail({go,t,projectId}) {
+  const projects = {
+    calc: {
+      icon:"🧮",
+      title:"Calculator",
+      difficulty:"Beginner",
+      desc:"Build a working calculator that adds, subtracts, multiplies and divides.",
+      skills:["Variables","Functions","Conditions"]
+    },
+    todo: {
+      icon:"✅",
+      title:"To-Do App",
+      difficulty:"Beginner",
+      desc:"Create a list where you can add, complete and remove tasks.",
+      skills:["Lists","Loops","Functions"]
+    },
+    weather: {
+      icon:"⛅",
+      title:"Weather App",
+      difficulty:"Intermediate",
+      desc:"Fetch live weather data from an API and display it nicely.",
+      skills:["APIs","JSON","Functions"]
+    },
+    chatbot: {
+      icon:"🤖",
+      title:"Chat Bot",
+      difficulty:"Intermediate",
+      desc:"Build a simple rule-based chatbot that replies to keywords.",
+      skills:["Conditions","Strings","Loops"]
+    },
+    snake: {
+      icon:"🐍",
+      title:"Snake Game",
+      difficulty:"Advanced",
+      desc:"Recreate the classic Snake game using Python.",
+      skills:["OOP","Game Loops","Events"]
+    },
+    dataviz: {
+      icon:"📊",
+      title:"Data Visualizer",
+      difficulty:"Advanced",
+      desc:"Turn a CSV file into charts using matplotlib.",
+      skills:["Pandas","Matplotlib","Files"]
+    }
+  };
+
+  const p = projects[projectId];
+
+  if (!p) {
+    return (
+      <div className="h-full bg-slate-950 text-white p-4">
+        Project not found
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-slate-950">
+      <Header
+        title={t.projectDetails}
+        back={()=>go("projects")}
+      />
+
+      <div className="flex-1 overflow-y-auto p-4">
+
+        <div className="text-6xl mb-4">
+          {p.icon}
+        </div>
+
+        <h2 className="text-white text-2xl font-bold">
+          {p.title}
+        </h2>
+
+        <p className="text-amber-300 text-sm mt-1">
+          {t.difficulty}: {p.difficulty}
+        </p>
+
+        <p className="text-slate-300 text-sm mt-4 leading-6">
+          {p.desc}
+        </p>
+
+        <p className="text-slate-400 text-xs mt-6 mb-2">
+          {t.skills}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          {p.skills.map(skill => (
+            <span
+              key={skill}
+              className="bg-slate-900 border border-white/10 text-slate-300 text-xs px-3 py-2 rounded-full"
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+
+        <button
+          onClick={()=>alert(`${p.title} project starting soon!`)}
+          className="w-full mt-8 bg-gradient-to-r from-violet-600 to-sky-500 text-white font-semibold py-3 rounded-xl"
+        >
+          Start Project →
+        </button>
+
+      </div>
+    </div>
+  );
 }
-export default function PythonNexusApp(){let content =
-  screen === 'home'
+export default function PythonNexusApp();let content =
+  screen === "home"
     ? <HomeScreen go={go} t={t} p={p}/>
-    : screen === 'course'
+    : screen === "course"
     ? <Course go={go} t={t} p={p}/>
-    : screen === 'quiz'
+    : screen === "quiz"
     ? <Course go={go} t={t} p={p}/>
-    : LESSONS[screen]
-    ? <Lesson go={go} t={t} id={screen} complete={complete}/>
-    : screen === 'tutor'
+    : screen === "tutor"
     ? <Tutor go={go} t={t} lang={lang}/>
-    : screen === 'projects'
+    : screen === "projects"
     ? <Projects go={go} t={t}/>
-    : <Settings go={go} t={t} lang={lang} setLang={change}/>;
+    : screen.startsWith("project-")
+    ? <ProjectDetail
+        go={go}
+        t={t}
+        projectId={screen.replace("project-", "")}
+      />
+    : LESSONS[screen]
+    ? <Lesson
+        go={go}
+        t={t}
+        id={screen}
+        complete={complete}
+      />
+    : <Settings
+        go={go}
+        t={t}
+        lang={lang}
+        setLang={change}
+      />;
