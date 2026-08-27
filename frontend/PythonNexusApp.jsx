@@ -22,7 +22,7 @@ import {
   Check,
 } from "lucide-react";
 
-const BACKEND_URL = "https://YOUR-BACKEND-URL.vercel.app";
+const BACKEND_URL = "https://python-nexus-app.onrender.com";
 
 const UI = {
   en: {
