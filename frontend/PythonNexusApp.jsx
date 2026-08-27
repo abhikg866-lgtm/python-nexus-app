@@ -14,7 +14,88 @@ function Lesson({go,t,id,complete}){const [i,setI]=useState(0),[quiz,setQuiz]=us
 function Quiz({t,data,done,back}){const [i,setI]=useState(0),[sel,setSel]=useState(null),[score,setScore]=useState(0);const q=data[i];const choose=x=>{if(sel!==null)return;setSel(x);if(x===q.a)setScore(s=>s+1)};return <div className="h-full bg-slate-950"><Header title={t.quizTime} back={back}/><div className="px-4"><p className="text-slate-500 text-xs mb-2">{t.passToUnlock}</p><div className="bg-slate-900 p-4 rounded-2xl"><p className="text-white mb-4">{q.q}</p>{q.o.map((x,j)=><button onClick={()=>choose(j)} className={`w-full text-left p-3 mb-2 rounded-lg border ${sel===null?'bg-slate-800 border-white/10 text-slate-200':j===q.a?'bg-emerald-500/20 border-emerald-400 text-emerald-300':sel===j?'bg-rose-500/20 border-rose-400 text-rose-300':'bg-slate-800 border-white/10 text-slate-300'}`}>{x}</button>)}{sel!==null&&<button onClick={()=>i+1<data.length?(setI(i+1),setSel(null)):done()} className="w-full bg-gradient-to-r from-violet-600 to-sky-500 text-white py-2 rounded-lg">{i+1<data.length?t.next:t.finishLesson}</button>}</div><p className="text-slate-500 text-xs text-center mt-3">{t.score}: {score}/{data.length}</p></div></div>}
 function Tutor({go,t,lang}){const [msgs,setMsgs]=useState([{bot:1,text:t.askAnything}]),[input,setInput]=useState(''),[loading,setLoading]=useState(false),end=useRef();useEffect(()=>end.current?.scrollIntoView({behavior:'smooth'}),[msgs]);async function send(){if(!input.trim()||loading)return;const text=input;setInput('');const next=[...msgs,{bot:0,text}];setMsgs(next);setLoading(true);try{const r=await fetch(`${BACKEND_URL}/api/tutor`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:`You are a friendly Python tutor. Reply in ${lang==='hi'?'Hindi/Hinglish':lang==='es'?'Spanish':'English'}, under 80 words.`,messages:next.map(m=>({role:m.bot?'assistant':'user',content:m.text}))})});const d=await r.json();setMsgs(m=>[...m,{bot:1,text:(d.content||[]).map(c=>c.text||'').join('\n')||'Sorry, no response.'}])}catch(e){setMsgs(m=>[...m,{bot:1,text:'Network error — please try again.'}])}finally{setLoading(false)}}return <div className="h-full flex flex-col bg-slate-950"><Header title={t.aiTutor} back={()=>go('home')}/><div className="flex-1 overflow-y-auto px-4 space-y-2">{msgs.map((m,i)=><div key={i} className={`max-w-[85%] p-3 rounded-xl text-sm ${m.bot?'bg-slate-900 text-slate-200':'bg-sky-600 text-white ml-auto'}`}>{m.text}</div>)}{loading&&<Loader2 className="animate-spin text-slate-400" size={16}/>}<div ref={end}/></div><div className="p-3 border-t border-white/10 flex gap-2"><input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder={t.typeQuestion} className="flex-1 bg-slate-900 text-white rounded-full px-4 py-2"/><button onClick={send} className="bg-sky-600 p-2 rounded-full text-white"><Send size={16}/></button></div></div>}
 function Settings({go,t,lang,setLang}){return <div className="h-full bg-slate-950"><Header title={t.settings} back={()=>go('home')}/><div className="px-4"><p className="text-slate-400 text-xs mb-2">{t.chooseLanguage}</p>{LANG.map(x=><button key={x.code} onClick={()=>setLang(x.code)} className={`w-full p-3 mb-2 rounded-xl border flex gap-3 text-white ${lang===x.code?'border-sky-400':'border-white/10 bg-slate-900'}`}>{x.flag} {x.label}{lang===x.code&&<CheckCircle2 className="ml-auto text-sky-400" size={18}/>}</button>)}</div></div>}
-function Projects({go,t}){const ps=[['🧮','Calculator','Beginner'],['✅','To-Do App','Beginner'],['⛅','Weather App','Intermediate'],['🤖','Chat Bot','Intermediate'],['🐍','Snake Game','Advanced'],['📊','Data Visualizer','Advanced']];return <div className="h-full bg-slate-950"><Header title={t.projects} back={()=>go('home')}/><div className="grid grid-cols-2 gap-3 p-4">{{ps.map(p=><button onClick={()=>alert(`${p[1]} project selected`)}className="bg-slate-900 border border-white/10 rounded-xl p-3 text-left"><span className="text-2xl">{p[0]}</span><p className="text-white text-sm">{p[1]}</p><p className="text-slate-400 text-xs">{p[2]}</p></button>)}</div></div>}
+function Projects({go,t}) {
+  const ps = [
+    {
+      id:"calc",
+      icon:"🧮",
+      title:"Calculator",
+      difficulty:"Beginner",
+      desc:"Build a working calculator that adds, subtracts, multiplies and divides.",
+      skills:["Variables","Functions","Conditions"]
+    },
+    {
+      id:"todo",
+      icon:"✅",
+      title:"To-Do App",
+      difficulty:"Beginner",
+      desc:"Create a list where you can add, complete and remove tasks.",
+      skills:["Lists","Loops","Functions"]
+    },
+    {
+      id:"weather",
+      icon:"⛅",
+      title:"Weather App",
+      difficulty:"Intermediate",
+      desc:"Fetch live weather data from an API and display it nicely.",
+      skills:["APIs","JSON","Functions"]
+    },
+    {
+      id:"chatbot",
+      icon:"🤖",
+      title:"Chat Bot",
+      difficulty:"Intermediate",
+      desc:"Build a simple rule-based chatbot that replies to keywords.",
+      skills:["Conditions","Strings","Loops"]
+    },
+    {
+      id:"snake",
+      icon:"🐍",
+      title:"Snake Game",
+      difficulty:"Advanced",
+      desc:"Recreate the classic Snake game using Python.",
+      skills:["OOP","Game Loops","Events"]
+    },
+    {
+      id:"dataviz",
+      icon:"📊",
+      title:"Data Visualizer",
+      difficulty:"Advanced",
+      desc:"Turn a CSV file into charts using matplotlib.",
+      skills:["Pandas","Matplotlib","Files"]
+    }
+  ];
+
+  const openProject = (project) => {
+    go("project-" + project.id);
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-slate-950">
+      <Header title={t.projects} back={()=>go("home")}/>
+
+      <div className="flex-1 overflow-y-auto grid grid-cols-2 gap-3 p-4">
+        {ps.map(p => (
+          <button
+            key={p.id}
+            onClick={()=>openProject(p)}
+            className="bg-slate-900 border border-white/10 rounded-xl p-3 text-left active:scale-95 transition"
+          >
+            <span className="text-2xl">{p.icon}</span>
+
+            <p className="text-white text-sm font-medium mt-2">
+              {p.title}
+            </p>
+
+            <p className="text-slate-400 text-xs">
+              {p.difficulty}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 export default function PythonNexusApp(){let content =
   screen === 'home'
     ? <HomeScreen go={go} t={t} p={p}/>
